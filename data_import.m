@@ -27,8 +27,8 @@ function Radar_Parameter,Frame=data_import(FileName)
     Are_Rx_Antennas_Interleaved = str2num(IFX_radar_parameters.parameters{5}(IFX_radar_parameters_index{5,1}));
     Modulation_Type_Enum = str2num(IFX_radar_parameters.parameters{6}(IFX_radar_parameters_index{6,1}));                                  % Modulation_Type_Enum_Def = {DOPPLER = 0, FMCW = 1}
     Chirp_Shape_Enum = str2num(IFX_radar_parameters.parameters{7}(IFX_radar_parameters_index{7,1}));                                      %{UP_CHIRP = 0, DOWN_CHIRP = 1, UP_DOWN_CHIRP = 2, DOWN_UP_CHIRP = 3}
-    Lower_RF_Frequency_kHz = str2num(IFX_radar_parameters.parameters{8}(IFX_radar_parameters_index{8,1}));
-    Upper_RF_Frequency_kHz = str2num(IFX_radar_parameters.parameters{9}(IFX_radar_parameters_index{9,1}));
+    Lower_RF_Frequency_kHz = str2num(IFX_radar_parameters.parameters{8}(IFX_radar_parameters_index{8,1}))/10^3;
+    Upper_RF_Frequency_kHz = str2num(IFX_radar_parameters.parameters{9}(IFX_radar_parameters_index{9,1}))/10^3;
     Sampling_Frequency_kHz = str2num(IFX_radar_parameters.parameters{10}(IFX_radar_parameters_index{10,1}));
     ADC_Resolution_Bits = str2num(IFX_radar_parameters.parameters{11}(IFX_radar_parameters_index{11,1}));
     Are_ADC_Samples_Normalized = str2num(IFX_radar_parameters.parameters{12}(IFX_radar_parameters_index{12,1}));
@@ -40,7 +40,7 @@ function Radar_Parameter,Frame=data_import(FileName)
     Pulse_Repetition_Time_sec = str2num(IFX_radar_parameters.parameters{18}(IFX_radar_parameters_index{18,1}))/10^(length(IFX_radar_parameters.parameters{18}(IFX_radar_parameters_index{18,1}))-1);
     Frame_Period_sec = str2num(IFX_radar_parameters.parameters{19}(IFX_radar_parameters_index{19,1}))/10^(length(IFX_radar_parameters.parameters{19}(IFX_radar_parameters_index{19,1}))-1);
     %Frame_Number = str2num(IFX_radar_parameters.parameters{21}(IFX_radar_parameters_index{21,1}));
-    Radar_Parameter= struck(  "Num_Tx_Antennas", Num_Tx_Antennas,     ...
+    Radar_Parameter= struct(  "Num_Tx_Antennas", Num_Tx_Antennas,     ...
                               "Num_Rx_Antennas", Num_Rx_Antennas,     ...
                               "Mask_Tx_Antennas", Mask_Tx_Antennas,     ...
                               "Mask_Rx_Antennas", Mask_Rx_Antennas,     ...
@@ -112,7 +112,8 @@ function Radar_Parameter,Frame=data_import(FileName)
             RXAntenna_2 = 1;
             RXAntenna_3 = 1;
     end
-    Frame_Number= floor(length(IFX_radar_data.data)/(Samples_per_Chirp*Chirps_per_Frame*NumRXAntenna));
+    IFX_radar_data_noNan=IFX_radar_data.data(~any(isnan(IFX_radar_data.data),2),:);
+    Frame_Number= floor(length(IFX_radar_data_noNan)/(Samples_per_Chirp*Chirps_per_Frame*NumRXAntenna));
     sn = 0:Samples_per_Chirp-1; % zero based sample number
     Frame=zeros(Samples_per_Chirp, Chirps_per_Frame, NumRXAntenna,Frame_Number);
     IFX_radar_data_noNan=IFX_radar_data.data(~any(isnan(IFX_radar_data.data),2),:);
