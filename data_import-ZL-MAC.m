@@ -1,4 +1,4 @@
-function [Radar_Parameter,Frame_Number,NumRXAntenna,Frame]=data_import(FileName)
+function Radar_Parameter,Frame=data_import(FileName)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %  Infineon XENSIV 60GHz Radar Matlab Interface   %
@@ -27,8 +27,8 @@ function [Radar_Parameter,Frame_Number,NumRXAntenna,Frame]=data_import(FileName)
     Are_Rx_Antennas_Interleaved = str2num(IFX_radar_parameters.parameters{5}(IFX_radar_parameters_index{5,1}));
     Modulation_Type_Enum = str2num(IFX_radar_parameters.parameters{6}(IFX_radar_parameters_index{6,1}));                                  % Modulation_Type_Enum_Def = {DOPPLER = 0, FMCW = 1}
     Chirp_Shape_Enum = str2num(IFX_radar_parameters.parameters{7}(IFX_radar_parameters_index{7,1}));                                      %{UP_CHIRP = 0, DOWN_CHIRP = 1, UP_DOWN_CHIRP = 2, DOWN_UP_CHIRP = 3}
-    Lower_RF_Frequency_kHz = str2num(IFX_radar_parameters.parameters{8}(IFX_radar_parameters_index{8,1}));
-    Upper_RF_Frequency_kHz = str2num(IFX_radar_parameters.parameters{9}(IFX_radar_parameters_index{9,1}));
+    Lower_RF_Frequency_kHz = str2num(IFX_radar_parameters.parameters{8}(IFX_radar_parameters_index{8,1}))/10^3;
+    Upper_RF_Frequency_kHz = str2num(IFX_radar_parameters.parameters{9}(IFX_radar_parameters_index{9,1}))/10^3;
     Sampling_Frequency_kHz = str2num(IFX_radar_parameters.parameters{10}(IFX_radar_parameters_index{10,1}));
     ADC_Resolution_Bits = str2num(IFX_radar_parameters.parameters{11}(IFX_radar_parameters_index{11,1}));
     Are_ADC_Samples_Normalized = str2num(IFX_radar_parameters.parameters{12}(IFX_radar_parameters_index{12,1}));
@@ -116,17 +116,22 @@ function [Radar_Parameter,Frame_Number,NumRXAntenna,Frame]=data_import(FileName)
     Frame_Number= floor(length(IFX_radar_data_noNan)/(Samples_per_Chirp*Chirps_per_Frame*NumRXAntenna));
     sn = 0:Samples_per_Chirp-1; % zero based sample number
     Frame=zeros(Samples_per_Chirp, Chirps_per_Frame, NumRXAntenna,Frame_Number);
+    IFX_radar_data_noNan=IFX_radar_data.data(~any(isnan(IFX_radar_data.data),2),:);
 % dispatch data
     for nf= 0: Frame_Number-1
         Chirp = zeros(Samples_per_Chirp, Chirps_per_Frame, NumRXAntenna);
+        % data_value = pFrameStart[SAMPLE_NUMBER * num_rx_antennas + ANTENNA_NUMBER];
         for nc = 0:Chirps_per_Frame-1
             for na = 0:NumRXAntenna-1
-                IData = IFX_radar_data_noNan(1+ sn*NumRXAntenna + na + Samples_per_Chirp*nc+Samples_per_Frame*nf); % real
+                IData = IFX_radar_data.data(1+ sn*NumRXAntenna + na + Samples_per_Chirp*nc+Samples_per_Frame*nf); % real
+                %QData = []; % imag
                try
+                %IData_2= highpass(IData,15000,Sampling_Frequency_kHz*1000,'Steepness',0.9999,'StopbandAttenuation',95);% High pass
                 Chirp(:,nc+1,na+1) = IData;
                end
             end
         end
         Frame(:,:,:,nf+1) = Chirp;
     end
+
 end
