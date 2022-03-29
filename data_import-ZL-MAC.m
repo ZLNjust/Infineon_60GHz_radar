@@ -123,7 +123,7 @@ function Radar_Parameter,Frame=data_import(FileName)
         % data_value = pFrameStart[SAMPLE_NUMBER * num_rx_antennas + ANTENNA_NUMBER];
         for nc = 0:Chirps_per_Frame-1
             for na = 0:NumRXAntenna-1
-                IData = IFX_radar_data.data(1+ sn*NumRXAntenna + na + Samples_per_Chirp*nc+Samples_per_Frame*nf); % real
+                IData = IFX_radar_data.data(1+ sn*NumRXAntenna + na + Samples_per_Chirp*nc*NumRXAntenna+Samples_per_Frame*nf); % real
                 %QData = []; % imag
                try
                 %IData_2= highpass(IData,15000,Sampling_Frequency_kHz*1000,'Steepness',0.9999,'StopbandAttenuation',95);% High pass

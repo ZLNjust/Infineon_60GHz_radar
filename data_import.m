@@ -121,7 +121,7 @@ function [Radar_Parameter,Frame_Number,NumRXAntenna,Frame]=data_import(FileName)
         Chirp = zeros(Samples_per_Chirp, Chirps_per_Frame, NumRXAntenna);
         for nc = 0:Chirps_per_Frame-1
             for na = 0:NumRXAntenna-1
-                IData = IFX_radar_data_noNan(1+ sn*NumRXAntenna + na + Samples_per_Chirp*nc+Samples_per_Frame*nf); % real
+                IData = IFX_radar_data_noNan(1+ sn*NumRXAntenna + na + Samples_per_Chirp*nc**NumRXAntenna+Samples_per_Frame*nf); % real
                try
                 Chirp(:,nc+1,na+1) = IData;
                end
